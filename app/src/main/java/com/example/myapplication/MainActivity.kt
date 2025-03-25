@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Header(
-                        title = "Poke Card Organiser"
+                        title = "Poke Card Organiser!"
                     )
                 }
             }
