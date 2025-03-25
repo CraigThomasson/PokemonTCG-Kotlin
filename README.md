@@ -1,0 +1,2 @@
+# PokemonTCG-Kotlin
+learning project 
