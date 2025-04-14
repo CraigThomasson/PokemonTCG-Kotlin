@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -41,8 +40,10 @@ class MainActivity : ComponentActivity() {
         val apiKey = BuildConfig.POKEMON_TCG_API_KEY
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val cardName = fetchPokemonData(apiKey)
-                Log.d("MainActivity", "Card Name: $cardName")
+                val cards = fetchPokemonData(apiKey)
+                cards.forEach { card ->
+                    Log.d("MainActivity", "Card Name: ${card.name}")
+                }
             } catch (e: Exception) {
                 Log.e("MainActivity", "Error fetching card data", e)
             }
@@ -55,11 +56,10 @@ fun Article(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         BannerImage()
         Header(
-            title = stringResource(R.string.Mian_header_title)
+            title = stringResource(R.string.Mian_header_title),
         )
     }
 }
-
 
 @Composable
 fun BannerImage() {
@@ -67,22 +67,25 @@ fun BannerImage() {
         painter = painterResource(R.drawable.pokemon_banner),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(180.dp),
     )
 }
 
 @Composable
-fun Header(title: String, modifier: Modifier = Modifier) {
+fun Header(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
             text = title,
             fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         )
     }
 }
-

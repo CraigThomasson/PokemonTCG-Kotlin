@@ -1,28 +1,19 @@
 package com.example.myapplication
 
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
+import com.example.myapplication.api.PokemonApiService
+import com.example.myapplication.api.RetrofitInstance
+import com.example.myapplication.models.Card
+import kotlinx.coroutines.runBlocking
 
-fun fetchPokemonData(apiKey: String): String {
-    val url = URL("https://api.pokemontcg.io/v2/cards")
-    val connection = url.openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
-    connection.setRequestProperty("Authorization", "Bearer $apiKey")
-
-    return connection.inputStream.bufferedReader().use { it.readText() }
+suspend fun fetchPokemonData(apiKey: String): List<Card> {
+    val response = RetrofitInstance.api.getPokemonCards(apiKey)
+    return response.data
 }
 
-fun searchCardById(jsonResponse: String, cardId: String): String {
-    val jsonObject = JSONObject(jsonResponse)
-    val cards = jsonObject.getJSONArray("data")
-
-    for (i in 0 until cards.length()) {
-        val card = cards.getJSONObject(i)
-        if (card.getString("id") == cardId) {
-            return card.getString("name")
-        }
-    }
-
-    return "Card not found"
+fun searchCardById(
+    cards: List<Card>,
+    cardId: String,
+): String {
+    val card = cards.find { it.id == cardId }
+    return card?.name ?: "Card not found"
 }

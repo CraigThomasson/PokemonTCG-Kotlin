@@ -7,5 +7,4 @@ data class Set(
     val id: String,
     val name: String,
     val series: String,
-    val images: String
 )
