@@ -4,6 +4,8 @@ import CardResponse
 import SetResponse
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface PokemonApiService {
     @GET("cards")
@@ -15,4 +17,10 @@ interface PokemonApiService {
     suspend fun getPokemonSets(
         @Header("Authorization") apiKey: String,
     ): SetResponse
+
+    @GET("cards")
+    suspend fun getCardsBySetId(
+        @Header("Authorization") apiKey: String,
+        @Query("q") query: String
+    ): CardResponse
 }

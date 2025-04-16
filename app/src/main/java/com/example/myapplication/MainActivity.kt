@@ -58,6 +58,17 @@ class MainActivity : ComponentActivity() {
                 Log.e("MainActivity", "Error fetching set data", e)
             }
         }
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val setId = "base2"
+                val cardsBySetId = fetchCardsBySetId(apiKey, setId)
+                cardsBySetId.forEach { card ->
+                    Log.d("MainActivity", "Card Name by Set ID: ${card.name}")
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error fetching cards by set ID", e)
+            }
+        }
     }
 }
 
