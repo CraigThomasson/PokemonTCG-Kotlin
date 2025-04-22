@@ -3,9 +3,9 @@ package com.example.myapplication.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Set(
+data class PokemonCard(
     val id: String,
     val name: String,
-    val series: String,
-    val images: SetImage,
+    val set: Set,
+    val cardImage: CardImage,
 )

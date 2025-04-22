@@ -13,19 +13,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.models.Card
+import coil.compose.rememberAsyncImagePainter
+import com.example.myapplication.models.PokemonCard
 import com.example.myapplication.models.Set
 import com.example.myapplication.models.UiState
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -140,10 +146,10 @@ fun LoadingScreen() {
 }
 
 @Composable
-fun CardList(cards: List<Card>) {
+fun CardList(pokemonCards: List<PokemonCard>) {
     Column {
-        cards.forEach { card ->
-            Text(card.name)
+        pokemonCards.forEach { pokemonCard ->
+            Text(pokemonCard.name)
         }
     }
 }
@@ -154,10 +160,45 @@ fun ErrorScreen(message: String) {
 }
 
 @Composable
+fun SetCard(set: Set) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = set.name,
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            Image(
+                painter = rememberAsyncImagePainter(set.images.logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+}
+
+@Composable
 fun SetList(sets: List<Set>) {
     Column {
         sets.forEach { set ->
-            Text(set.name)
+            SetCard(set)
         }
     }
 }

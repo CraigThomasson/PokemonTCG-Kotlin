@@ -2,7 +2,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.fetchCardsBySetId
 import com.example.myapplication.fetchPokemonSets
-import com.example.myapplication.models.Card
+import com.example.myapplication.models.PokemonCard
 import com.example.myapplication.models.Set
 import com.example.myapplication.models.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
-    private val _cardUiState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
-    val cardUiState: StateFlow<UiState<List<Card>>> = _cardUiState
+    private val _cardUiState = MutableStateFlow<UiState<List<PokemonCard>>>(UiState.Loading)
+    val cardUiState: StateFlow<UiState<List<PokemonCard>>> = _cardUiState
 
     private val _setUiState = MutableStateFlow<UiState<List<Set>>>(UiState.Loading)
     val setUiState: StateFlow<UiState<List<Set>>> = _setUiState
