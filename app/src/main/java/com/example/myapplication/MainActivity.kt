@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.models.Card
+import com.example.myapplication.models.Set
 import com.example.myapplication.models.UiState
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
@@ -43,8 +44,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        // Trigger data fetch
+        
         val apiKey = BuildConfig.POKEMON_TCG_API_KEY
         viewModel.loadCardsBySetId(apiKey, "base2")
     }
@@ -52,28 +52,45 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Article(modifier: Modifier = Modifier, viewModel: MainViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
+    val cardUiState by viewModel.cardUiState.collectAsState()
+    val setUiState by viewModel.setUiState.collectAsState()
 
     Column(modifier = modifier) {
-        // Keep the existing header and banner
         BannerImage()
         Header(
             title = stringResource(R.string.Mian_header_title),
         )
 
-        // Add UI state handling below the header
-        when (uiState) {
+        Text("Cards:")
+        when (cardUiState) {
             is UiState.Loading -> {
                 LoadingScreen()
             }
 
             is UiState.Success -> {
-                val cards = (uiState as UiState.Success<List<Card>>).data
+                val cards = (cardUiState as UiState.Success<List<Card>>).data
                 CardList(cards)
             }
 
             is UiState.Error -> {
-                val errorMessage = (uiState as UiState.Error).message
+                val errorMessage = (cardUiState as UiState.Error).message
+                ErrorScreen(errorMessage)
+            }
+        }
+
+        Text("Sets:")
+        when (setUiState) {
+            is UiState.Loading -> {
+                LoadingScreen()
+            }
+
+            is UiState.Success -> {
+                val sets = (setUiState as UiState.Success<List<Set>>).data
+                SetList(sets)
+            }
+
+            is UiState.Error -> {
+                val errorMessage = (setUiState as UiState.Error).message
                 ErrorScreen(errorMessage)
             }
         }
@@ -127,4 +144,13 @@ fun CardList(cards: List<Card>) {
 @Composable
 fun ErrorScreen(message: String) {
     Text("Error: $message")
+}
+
+@Composable
+fun SetList(sets: List<Set>) {
+    Column {
+        sets.forEach { set ->
+            Text(set.name)
+        }
+    }
 }
