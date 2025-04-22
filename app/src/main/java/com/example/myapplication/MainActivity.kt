@@ -1,10 +1,11 @@
 package com.example.myapplication
 
+import MainViewModel
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,73 +15,71 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.models.Card
+import com.example.myapplication.models.UiState
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Article(modifier = Modifier.padding(innerPadding))
+                    Article(
+                        modifier = Modifier.padding(innerPadding),
+                        viewModel = viewModel
+                    )
                 }
             }
         }
 
+        // Trigger data fetch
         val apiKey = BuildConfig.POKEMON_TCG_API_KEY
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val cards = fetchPokemonData(apiKey)
-                cards.forEach { card ->
-                    Log.d("MainActivity", "Card Name: ${card.name}")
-                }
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error fetching card data", e)
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val sets = fetchPokemonSets(apiKey)
-                sets.forEach { set ->
-                    Log.d("MainActivity", "set Name: ${set.name}")
-                }
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error fetching set data", e)
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val setId = "base2"
-                val cardsBySetId = fetchCardsBySetId(apiKey, setId)
-                cardsBySetId.forEach { card ->
-                    Log.d("MainActivity", "Card Name by Set ID: ${card.name}")
-                }
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error fetching cards by set ID", e)
-            }
-        }
+        viewModel.loadCardsBySetId(apiKey, "base2")
     }
 }
 
 @Composable
-fun Article(modifier: Modifier = Modifier) {
+fun Article(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Column(modifier = modifier) {
+        // Keep the existing header and banner
         BannerImage()
         Header(
             title = stringResource(R.string.Mian_header_title),
         )
+
+        // Add UI state handling below the header
+        when (uiState) {
+            is UiState.Loading -> {
+                LoadingScreen()
+            }
+
+            is UiState.Success -> {
+                val cards = (uiState as UiState.Success<List<Card>>).data
+                CardList(cards)
+            }
+
+            is UiState.Error -> {
+                val errorMessage = (uiState as UiState.Error).message
+                ErrorScreen(errorMessage)
+            }
+        }
     }
 }
+
 
 @Composable
 fun BannerImage() {
@@ -109,4 +108,23 @@ fun Header(
             modifier = Modifier.padding(16.dp),
         )
     }
+}
+
+@Composable
+fun LoadingScreen() {
+    Text("Loading...")
+}
+
+@Composable
+fun CardList(cards: List<Card>) {
+    Column {
+        cards.forEach { card ->
+            Text(card.name)
+        }
+    }
+}
+
+@Composable
+fun ErrorScreen(message: String) {
+    Text("Error: $message")
 }
