@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,9 +46,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        
+
         val apiKey = BuildConfig.POKEMON_TCG_API_KEY
         viewModel.loadCardsBySetId(apiKey, "base2")
+        viewModel.loadSets(apiKey)
     }
 }
 
@@ -54,29 +57,33 @@ class MainActivity : ComponentActivity() {
 fun Article(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     val cardUiState by viewModel.cardUiState.collectAsState()
     val setUiState by viewModel.setUiState.collectAsState()
+    val scrollState = rememberScrollState()
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .verticalScroll(scrollState)
+    ) {
         BannerImage()
         Header(
             title = stringResource(R.string.Mian_header_title),
         )
 
-        Text("Cards:")
-        when (cardUiState) {
-            is UiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is UiState.Success -> {
-                val cards = (cardUiState as UiState.Success<List<Card>>).data
-                CardList(cards)
-            }
-
-            is UiState.Error -> {
-                val errorMessage = (cardUiState as UiState.Error).message
-                ErrorScreen(errorMessage)
-            }
-        }
+//        Text("Cards:")
+//        when (cardUiState) {
+//            is UiState.Loading -> {
+//                LoadingScreen()
+//            }
+//
+//            is UiState.Success -> {
+//                val cards = (cardUiState as UiState.Success<List<Card>>).data
+//                CardList(cards)
+//            }
+//
+//            is UiState.Error -> {
+//                val errorMessage = (cardUiState as UiState.Error).message
+//                ErrorScreen(errorMessage)
+//            }
+//        }
 
         Text("Sets:")
         when (setUiState) {
