@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.androidx.benchmark.common)
     implementation(libs.coil.compose)
+    implementation("androidx.navigation:navigation-compose:2.7.3")
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
     androidTestImplementation(libs.androidx.junit)

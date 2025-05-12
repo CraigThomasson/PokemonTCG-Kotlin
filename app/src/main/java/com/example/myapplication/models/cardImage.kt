@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CardImage(
-    val small: String,
-    val large: String,
+    val small: String? = null,
+    val large: String? = null
 )
