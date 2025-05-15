@@ -163,41 +163,6 @@ fun ErrorScreen(message: String) {
 }
 
 @Composable
-fun SetCard(set: Set) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = set.name,
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Image(
-                painter = rememberAsyncImagePainter(set.images.logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
-    }
-}
-
-@Composable
 fun SetList(sets: List<Set>, onSetClick: (String) -> Unit) {
     Column {
         sets.forEach { set ->
