@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -94,14 +96,16 @@ fun AppNavHost(
 @Composable
 fun SetListScreen(viewModel: MainViewModel, navController: NavHostController) {
     val setUiState by viewModel.setUiState.collectAsState()
-    val scrollState = rememberScrollState()
+//    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
+//            .verticalScroll(scrollState)
     ) {
-        BannerImage()
+
+    BannerImage()
+
         Header(title = stringResource(R.string.Mian_header_title))
 
         when (setUiState) {
@@ -162,10 +166,19 @@ fun ErrorScreen(message: String) {
     Text("Error: $message")
 }
 
+//@Composable
+//fun SetList(sets: List<Set>, onSetClick: (String) -> Unit) {
+//    Column {
+//        sets.forEach { set ->
+//            SetCard(set = set, onClick = onSetClick)
+//        }
+//    }
+//}
+
 @Composable
 fun SetList(sets: List<Set>, onSetClick: (String) -> Unit) {
-    Column {
-        sets.forEach { set ->
+    LazyColumn {
+        items(sets) { set ->
             SetCard(set = set, onClick = onSetClick)
         }
     }
