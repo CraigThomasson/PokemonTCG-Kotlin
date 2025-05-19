@@ -12,9 +12,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -58,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     AppNavHost(
                         navController = navController,
                         viewModel = viewModel,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
             }
@@ -73,17 +78,17 @@ class MainActivity : ComponentActivity() {
 fun AppNavHost(
     navController: NavHostController,
     viewModel: MainViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     NavHost(
         navController = navController,
         startDestination = Routes.SET_LIST_SCREEN,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable(Routes.SET_LIST_SCREEN) {
             SetListScreen(
                 viewModel = viewModel,
-                navController = navController
+                navController = navController,
             )
         }
         composable(Routes.CARD_LIST_SCREEN) { backStackEntry ->
@@ -94,19 +99,17 @@ fun AppNavHost(
 }
 
 @Composable
-fun SetListScreen(viewModel: MainViewModel, navController: NavHostController) {
+fun SetListScreen(
+    viewModel: MainViewModel,
+    navController: NavHostController,
+) {
     val setUiState by viewModel.setUiState.collectAsState()
-//    val scrollState = rememberScrollState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-//            .verticalScroll(scrollState)
+        modifier =
+        Modifier
+            .fillMaxSize(),
     ) {
-
-    BannerImage()
-
-        Header(title = stringResource(R.string.Mian_header_title))
 
         when (setUiState) {
             is UiState.Loading -> LoadingScreen()
@@ -124,7 +127,6 @@ fun SetListScreen(viewModel: MainViewModel, navController: NavHostController) {
         }
     }
 }
-
 
 @Composable
 fun BannerImage() {
@@ -160,24 +162,25 @@ fun LoadingScreen() {
     Text("Loading...")
 }
 
-
 @Composable
 fun ErrorScreen(message: String) {
     Text("Error: $message")
 }
 
-//@Composable
-//fun SetList(sets: List<Set>, onSetClick: (String) -> Unit) {
-//    Column {
-//        sets.forEach { set ->
-//            SetCard(set = set, onClick = onSetClick)
-//        }
-//    }
-//}
-
 @Composable
-fun SetList(sets: List<Set>, onSetClick: (String) -> Unit) {
+fun SetList(
+    sets: List<Set>,
+    onSetClick: (String) -> Unit,
+) {
     LazyColumn {
+
+        item {
+            BannerImage()
+        }
+
+        item {
+            Header(title = stringResource(R.string.Mian_header_title))
+        }
         items(sets) { set ->
             SetCard(set = set, onClick = onSetClick)
         }
@@ -185,29 +188,41 @@ fun SetList(sets: List<Set>, onSetClick: (String) -> Unit) {
 }
 
 @Composable
-fun CardListScreen(setId: String, viewModel: MainViewModel) {
+fun CardListScreen(
+    setId: String,
+    viewModel: MainViewModel,
+) {
     val cardUiState by viewModel.cardUiState.collectAsState()
 
-    Column(
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .padding(8.dp),
     ) {
         when (cardUiState) {
-            is UiState.Loading -> LoadingScreen()
+            is UiState.Loading -> {
+                item {
+                    LoadingScreen()
+                }
+            }
+
             is UiState.Success -> {
                 val cards = (cardUiState as UiState.Success<List<PokemonCard>>).data
-                cards.forEach { card ->
+                items(cards) { card ->
                     CardItem(card)
                 }
             }
 
             is UiState.Error -> {
-                val errorMessage = (cardUiState as UiState.Error).message
-                ErrorScreen(errorMessage)
+                item {
+                    val errorMessage = (cardUiState as UiState.Error).message
+                    ErrorScreen(errorMessage)
+                }
             }
         }
     }
+
     val apiKey = BuildConfig.POKEMON_TCG_API_KEY
     LaunchedEffect(setId, apiKey) {
         viewModel.loadCardsBySetId(apiKey, setId)
@@ -217,79 +232,92 @@ fun CardListScreen(setId: String, viewModel: MainViewModel) {
 @Composable
 fun CardItem(card: PokemonCard) {
     Card(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
+            .width(150.dp)
             .padding(8.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(16.dp)
-                .fillMaxWidth()
+                .wrapContentWidth()
         ) {
             Text(
                 text = card.name,
                 fontSize = 18.sp,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(bottom = 8.dp)
                     .fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             card.Images?.large?.let { imageUrl ->
                 Image(
                     painter = rememberAsyncImagePainter(imageUrl),
                     contentDescription = null,
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxWidth()
                         .height(150.dp),
-                    contentScale = ContentScale.Fit
+
+                    contentScale = ContentScale.Fit,
                 )
             } ?: Text(
                 text = "Image not available",
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }
 }
 
 @Composable
-fun SetCard(set: Set, onClick: (String) -> Unit) {
+fun SetCard(
+    set: Set,
+    onClick: (String) -> Unit,
+) {
     Card(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onClick(set.id) }, // Navigate on click
+            .clickable { onClick(set.id) },
+        // Navigate on click
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(16.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
         ) {
             Text(
                 text = set.name,
                 fontSize = 18.sp,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(bottom = 8.dp)
                     .fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Image(
                 painter = rememberAsyncImagePainter(set.images.logo),
                 contentDescription = null,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .height(150.dp),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Fit,
             )
         }
     }
 }
-
