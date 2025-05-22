@@ -48,6 +48,10 @@ import com.example.myapplication.models.PokemonCard
 import com.example.myapplication.models.Set
 import com.example.myapplication.models.UiState
 import com.example.myapplication.navigation.Routes
+import com.example.myapplication.ui.components.BannerImage
+import com.example.myapplication.ui.components.Header
+import com.example.myapplication.ui.screens.CardListScreen
+import com.example.myapplication.ui.screens.SetListScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -99,65 +103,6 @@ fun AppNavHost(
 }
 
 @Composable
-fun SetListScreen(
-    viewModel: MainViewModel,
-    navController: NavHostController,
-) {
-    val setUiState by viewModel.setUiState.collectAsState()
-
-    Column(
-        modifier =
-        Modifier
-            .fillMaxSize(),
-    ) {
-
-        when (setUiState) {
-            is UiState.Loading -> LoadingScreen()
-            is UiState.Success -> {
-                val sets = (setUiState as UiState.Success<List<Set>>).data
-                SetList(sets) { setId ->
-                    navController.navigate("cardListScreen/$setId")
-                }
-            }
-
-            is UiState.Error -> {
-                val errorMessage = (setUiState as UiState.Error).message
-                ErrorScreen(errorMessage)
-            }
-        }
-    }
-}
-
-@Composable
-fun BannerImage() {
-    Image(
-        painter = painterResource(R.drawable.pokemon_banner),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier =
-        Modifier
-            .fillMaxWidth()
-            .height(180.dp),
-    )
-}
-
-@Composable
-fun Header(
-    title: String,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = title,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp),
-        )
-    }
-}
-
-@Composable
 fun LoadingScreen() {
     Text("Loading...")
 }
@@ -183,97 +128,6 @@ fun SetList(
         }
         items(sets) { set ->
             SetCard(set = set, onClick = onSetClick)
-        }
-    }
-}
-
-@Composable
-fun CardListScreen(
-    setId: String,
-    viewModel: MainViewModel,
-) {
-    val cardUiState by viewModel.cardUiState.collectAsState()
-
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-    ) {
-        when (cardUiState) {
-            is UiState.Loading -> {
-                item {
-                    LoadingScreen()
-                }
-            }
-
-            is UiState.Success -> {
-                val cards = (cardUiState as UiState.Success<List<PokemonCard>>).data
-                items(cards) { card ->
-                    CardItem(card)
-                }
-            }
-
-            is UiState.Error -> {
-                item {
-                    val errorMessage = (cardUiState as UiState.Error).message
-                    ErrorScreen(errorMessage)
-                }
-            }
-        }
-    }
-
-    val apiKey = BuildConfig.POKEMON_TCG_API_KEY
-    LaunchedEffect(setId, apiKey) {
-        viewModel.loadCardsBySetId(apiKey, setId)
-    }
-}
-
-@Composable
-fun CardItem(card: PokemonCard) {
-    Card(
-        modifier =
-        Modifier
-            .fillMaxWidth()
-            .width(150.dp)
-            .padding(8.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp),
-    ) {
-        Column(
-            modifier =
-            Modifier
-                .padding(16.dp)
-                .wrapContentWidth()
-        ) {
-            Text(
-                text = card.name,
-                fontSize = 18.sp,
-                modifier =
-                Modifier
-                    .padding(bottom = 8.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-            card.Images?.large?.let { imageUrl ->
-                Image(
-                    painter = rememberAsyncImagePainter(imageUrl),
-                    contentDescription = null,
-                    modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(150.dp),
-
-                    contentScale = ContentScale.Fit,
-                )
-            } ?: Text(
-                text = "Image not available",
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }
